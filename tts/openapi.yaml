@@ -1,0 +1,28 @@
+openapi: 3.0.0
+info:
+  title: Dweller-Speech-API
+  description: API endpoints for both tts and stt
+  version: 1.0.0
+paths:
+  /talk:
+    post:
+      summary: "tts service using kokoro engine + voices"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+      responses:
+        '200':
+          description: "tts running"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    
