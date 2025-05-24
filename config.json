@@ -1,0 +1,25 @@
+{
+    "tts-server": {
+        "status": "offline",
+        "url": {
+            "address": "127.0.0.1",
+            "port": 8000
+        },
+        "model": {
+            "model_path": "/models/kokoro-v1.0.onnx",
+            "voices_path": "/models/voices-v1.0.bin"
+        }
+    },
+    "stt-server": {
+        "status": "offline",
+        "url": {
+            "address": "127.0.0.1",
+            "port": 8001
+        },
+        "model": {
+            "model_path": "/Users/mtccool668/projects/dweller/models/vosk/vosk-model-en-us-0.22",
+            "device": "",
+            "sample_rate": ""
+        }
+    }
+}

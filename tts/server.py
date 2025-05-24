@@ -2,7 +2,7 @@
 import sounddevice as sd
 import asyncio
 import yaml
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 
 
 from dweller_tts import DwellerTTS
@@ -17,21 +17,33 @@ app = FastAPI()
 app.openapi_schema = openapi_spec
 
 tts = DwellerTTS(
-    model_path="model/kokoro-v1.0.onnx",
-    voices_path="voices-v1.0.bin",
-    voice_styles = {"jf_alpha": 0.7, "af_heart": 0.3}
+    model_path="models/kokoro-v1.0.onnx",
+    voices_path="models/voices-v1.0.bin",
+    voice_styles = [("jf_alpha", 0.7), ("af_heart", 0.3)]
 )
 
-@app.post("/talk")
-async def talk(req: dict):
-    tts.generate_voice_stream(req.get("text", ""), req.get("speed", 1.5))
+@app.websocket("/talk")
+async def talk(websocket: WebSocket):
+    await websocket.accept()
 
-    if tts.stream is not None:
-        asyncio.create_task(tts.talk())
+    try:
+        while True:
+            data = await websocket.receive_json()
+            text = data.get("text", "")
+            speed = data.get("speed", 1.15)
 
-        return {"status": "Speaking started"}
+            if not text:
+                await websocket.send_json({"status": "No text provided"})
+                continue
 
-    else:
-        return {"status": "No message provided"}
+            tts.generate_voice_stream(text, speed)
 
+            if tts.stream is not None:
+                asyncio.create_task(tts.talk())
+                await websocket.send_json({"status": "Speaking started"})
+
+            else:
+                return {"status": "No message provided"}
+    except WebSocketDisconnect:
+        print("WebSocket disconnected")
 
